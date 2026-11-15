@@ -74,7 +74,7 @@
 Clone the repository, install dependencies, and launch the game:
 
 ```bash
-git clone [https://github.com/USERNAME-ANDA/Snakefy.git](https://github.com/USERNAME-ANDA/Snakefy.git)
+git clone https://github.com/sr464a6/Snakefy.git
 cd Snakefy
 pip install -r requirements.txt
 python main.py

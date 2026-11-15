@@ -15,6 +15,11 @@ const speedElement = document.getElementById("speed");
 const startScreen = document.getElementById("startScreen");
 const gameOverScreen = document.getElementById("gameOverScreen");
 
+const pauseScreen = document.getElementById("pauseScreen");
+const pauseButton = document.getElementById("pauseButton");
+const resumeButton = document.getElementById("resumeButton");
+let paused = false;
+
 const startButton = document.getElementById("startButton");
 const restartButton = document.getElementById("restartButton");
 
@@ -26,8 +31,14 @@ const newRecordElement = document.getElementById("newRecord");
 // CONFIG
 // ==============================
 
+const LOGICAL = 400;
+const DPR = 2;
+canvas.width = LOGICAL * DPR;
+canvas.height = LOGICAL * DPR;
+ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+
 const GRID_SIZE = 20;
-const CELL_SIZE = canvas.width / GRID_SIZE;
+const CELL_SIZE = LOGICAL / GRID_SIZE;
 
 const INITIAL_SPEED = 150;
 const MIN_SPEED = 55;
@@ -63,6 +74,8 @@ highScoreElement.textContent = highScore;
 
 function startGame() {
     clearTimeout(gameTimer);
+    paused = false;
+    pauseScreen.classList.add("hidden");
 
     snake = [
         { x: 10, y: 10 },
@@ -196,6 +209,8 @@ function eatFood() {
     score += 10;
 
     scoreElement.textContent = score;
+    bump(scoreElement);
+    vibrate(15);
 
     // Every 50 points = new level
     const newLevel = Math.floor(score / 50) + 1;
@@ -241,8 +256,8 @@ function draw() {
     ctx.fillRect(
         0,
         0,
-        canvas.width,
-        canvas.height
+        LOGICAL,
+        LOGICAL
     );
 
     drawGrid();
@@ -264,12 +279,12 @@ function drawGrid() {
 
         ctx.beginPath();
         ctx.moveTo(position, 0);
-        ctx.lineTo(position, canvas.height);
+        ctx.lineTo(position, LOGICAL);
         ctx.stroke();
 
         ctx.beginPath();
         ctx.moveTo(0, position);
-        ctx.lineTo(canvas.width, position);
+        ctx.lineTo(LOGICAL, position);
         ctx.stroke();
     }
 }
@@ -303,9 +318,11 @@ function drawSnake() {
             4
         );
 
+        ctx.globalAlpha = index === 0 ? 1 : Math.max(0.5, 1 - index * 0.025);
         ctx.fill();
     });
 
+    ctx.globalAlpha = 1;
     ctx.shadowBlur = 0;
 
     // Eyes
@@ -421,6 +438,7 @@ function drawFood() {
 
 function endGame() {
     gameRunning = false;
+    vibrate(90);
 
     clearTimeout(gameTimer);
 
@@ -472,6 +490,7 @@ document.addEventListener("keydown", event => {
             "a",
             "s",
             "d",
+            "p",
             " "
         ].includes(key)
     ) {
@@ -499,8 +518,15 @@ document.addEventListener("keydown", event => {
             changeDirection(1, 0);
             break;
 
+        case "p":
+        case "escape":
+            togglePause();
+            break;
+
         case " ":
-            if (!gameRunning) {
+            if (paused) {
+                togglePause();
+            } else if (!gameRunning) {
                 startGame();
             }
             break;
@@ -512,8 +538,9 @@ document.addEventListener("keydown", event => {
 // MOBILE BUTTONS
 // ==============================
 
-document.querySelectorAll(".control").forEach(button => {
-    button.addEventListener("click", () => {
+document.querySelectorAll(".control[data-direction]").forEach(button => {
+    button.addEventListener("pointerdown", event => {
+        event.preventDefault();
         const directionName =
             button.dataset.direction;
 
@@ -594,6 +621,8 @@ canvas.addEventListener(
 );
 
 
+canvas.addEventListener("touchmove", e => e.preventDefault(), { passive: false });
+
 // ==============================
 // BUTTONS
 // ==============================
@@ -608,10 +637,45 @@ restartButton.addEventListener(
     startGame
 );
 
+resumeButton.addEventListener("click", togglePause);
+pauseButton.addEventListener("click", togglePause);
+
+document.addEventListener("visibilitychange", () => {
+    if (document.hidden && gameRunning) {
+        togglePause();
+    }
+});
+
 
 // ==============================
 // HELPERS
 // ==============================
+
+function togglePause() {
+    if (paused) {
+        paused = false;
+        gameRunning = true;
+        pauseScreen.classList.add("hidden");
+        gameLoop();
+    } else if (gameRunning) {
+        paused = true;
+        gameRunning = false;
+        clearTimeout(gameTimer);
+        pauseScreen.classList.remove("hidden");
+    }
+}
+
+function vibrate(ms) {
+    if (navigator.vibrate) {
+        navigator.vibrate(ms);
+    }
+}
+
+function bump(element) {
+    element.classList.remove("bump");
+    void element.offsetWidth;
+    element.classList.add("bump");
+}
 
 function roundRect(
     context,

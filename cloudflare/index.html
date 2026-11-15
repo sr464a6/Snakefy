@@ -1,127 +1,81 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
-    <title>Snakefy Game</title>
-    <meta name="description" content="Snakefy - Classic Snake Game">
-    <meta name="theme-color" content="#050505">
-
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Snakefy</title>
+<meta name="description" content="Snakefy - game ular klasik, bisa dimainkan di HP dan desktop">
+<meta name="theme-color" content="#06100b">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-    <main class="game-container">
+<main class="app">
+  <header class="head">
+    <div>
+      <h1>Snakefy</h1>
+      <p>Makan, tumbuh, jangan nabrak.</p>
+    </div>
+    <button id="pauseButton" class="ghost" type="button" aria-label="Jeda (P)">Jeda</button>
+  </header>
 
-        <header class="game-header">
-            <div>
-                <h1>SNAKEFY</h1>
-                <p>Classic Snake Game</p>
-            </div>
+  <section class="stats" aria-label="Statistik">
+    <div class="stat main"><span>Skor</span><strong id="score">0</strong></div>
+    <div class="stat"><span>Rekor</span><strong id="highScore">0</strong></div>
+    <div class="stat"><span>Level</span><strong id="level">1</strong></div>
+    <div class="stat"><span>Kecepatan</span><strong id="speed">1x</strong></div>
+  </section>
 
-            <div class="score-box">
-                <span>SCORE</span>
-                <strong id="score">0</strong>
-            </div>
-        </header>
+  <section class="board">
+    <canvas id="gameCanvas" width="800" height="800" aria-label="Papan permainan"></canvas>
 
-        <section class="stats">
-            <div class="stat">
-                <span>HIGH SCORE</span>
-                <strong id="highScore">0</strong>
-            </div>
+    <div id="startScreen" class="overlay">
+      <div class="card">
+        <div class="icon">🐍</div>
+        <h2>Siap main?</h2>
+        <p>Makan apel, tumbuh panjang, jangan nabrak tembok atau badan sendiri.</p>
+        <button id="startButton" class="main-button" type="button">Mulai main</button>
+        <small class="hint-key">Panah / WASD, Spasi untuk mulai</small>
+        <small class="hint-touch">Geser di papan atau pakai tombol arah</small>
+      </div>
+    </div>
 
-            <div class="stat">
-                <span>LEVEL</span>
-                <strong id="level">1</strong>
-            </div>
+    <div id="pauseScreen" class="overlay hidden">
+      <div class="card">
+        <h2>Dijeda</h2>
+        <button id="resumeButton" class="main-button" type="button">Lanjutkan</button>
+        <small>Tekan P atau Spasi</small>
+      </div>
+    </div>
 
-            <div class="stat">
-                <span>SPEED</span>
-                <strong id="speed">1x</strong>
-            </div>
-        </section>
+    <div id="gameOverScreen" class="overlay hidden">
+      <div class="card">
+        <div class="icon">💀</div>
+        <h2>Game over</h2>
+        <p>Skor kamu</p>
+        <strong id="finalScore" class="final-score">0</strong>
+        <p id="newRecord" class="new-record hidden">Rekor baru!</p>
+        <button id="restartButton" class="main-button" type="button">Main lagi</button>
+      </div>
+    </div>
+  </section>
 
-        <section class="game-wrapper">
-            <canvas id="gameCanvas" width="400" height="400"></canvas>
+  <section class="pad" aria-label="Kontrol arah">
+    <span></span><button class="control" data-direction="up" aria-label="Atas" type="button">▲</button><span></span>
+    <button class="control" data-direction="left" aria-label="Kiri" type="button">◀</button>
+    <button class="control" data-direction="down" aria-label="Bawah" type="button">▼</button>
+    <button class="control" data-direction="right" aria-label="Kanan" type="button">▶</button>
+  </section>
 
-            <div id="startScreen" class="overlay">
-                <div class="overlay-content">
-                    <div class="snake-icon">🐍</div>
-                    <h2>SNAKEFY</h2>
-                    <p>Eat the food. Grow longer. Don't hit yourself.</p>
-
-                    <button id="startButton" class="main-button">
-                        START GAME
-                    </button>
-
-                    <small>
-                        Keyboard: Arrow Keys / WASD
-                    </small>
-                </div>
-            </div>
-
-            <div id="gameOverScreen" class="overlay hidden">
-                <div class="overlay-content">
-                    <div class="game-over-icon">💀</div>
-                    <h2>GAME OVER</h2>
-
-                    <p>Your Score</p>
-                    <strong id="finalScore" class="final-score">0</strong>
-
-                    <p id="newRecord" class="new-record hidden">
-                        🏆 NEW HIGH SCORE!
-                    </p>
-
-                    <button id="restartButton" class="main-button">
-                        PLAY AGAIN
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <section class="mobile-controls">
-            <button class="control empty"></button>
-
-            <button class="control" data-direction="up" aria-label="Up">
-                ▲
-            </button>
-
-            <button class="control empty"></button>
-
-            <button class="control" data-direction="left" aria-label="Left">
-                ◀
-            </button>
-
-            <button class="control" data-direction="down" aria-label="Down">
-                ▼
-            </button>
-
-            <button class="control" data-direction="right" aria-label="Right">
-                ▶
-            </button>
-        </section>
-
-        <section class="instructions">
-            <p>
-                <span>⌨</span>
-                Use <strong>Arrow Keys</strong> or <strong>WASD</strong> to move
-            </p>
-
-            <p>
-                <span>🍎</span>
-                Eat food to increase your score
-            </p>
-        </section>
-
-        <footer>
-            <p>Snakefy Game</p>
-        </footer>
-
-    </main>
-
-    <script src="game.js"></script>
+  <section class="tips">
+    <p><b>Kontrol</b></p>
+    <p class="hint-key">Panah atau WASD untuk belok, P untuk jeda.</p>
+    <p class="hint-touch">Geser di papan atau ketuk tombol arah.</p>
+    <p>Tiap 50 poin naik level dan ular makin cepat.</p>
+  </section>
+</main>
+<script src="game.js"></script>
 </body>
 </html>
-
